@@ -54,12 +54,22 @@ void drv8323s_init(void) {
 	palSetPad(DRV8323S_MOSI_GPIO, DRV8323S_MOSI_PIN);
 
 	chThdSleepMilliseconds(100);
-
+	
 	// Disable OC
 	drv8323s_write_reg(5, 0x04C0);
 
+	// Calibrate CSA
+//	drv8323s_write_reg(6, 0x283 | 0x001c); // 
+//	chThdSleepMilliseconds(100);
+
+        // Set bidirectional
+//        drv8323s_write_reg(6, 0x283);
+
 	// Set shunt amp gain
 	drv8323s_set_current_amp_gain(CURRENT_AMP_GAIN);
+
+	// Set unidirectional div ref
+	drv8323s_write_reg(6, 0x0283); // 
 
 	terminal_register_command_callback(
 		"drv8323s_read_reg",
@@ -163,6 +173,8 @@ void drv8323s_dccal_on(void)
 {
 	int reg = drv8323s_read_reg(6);
 	reg |= (1 << 2);
+	reg |= (1 << 3);
+	reg |= (1 << 4);
 	drv8323s_write_reg(6, reg);
 }
 
@@ -170,6 +182,8 @@ void drv8323s_dccal_off(void)
 {
 	int reg = drv8323s_read_reg(6);
 	reg &= ~(1 << 2);
+	reg &= ~(1 << 3);
+	reg &= ~(1 << 4);
 	drv8323s_write_reg(6, reg);
 }
 

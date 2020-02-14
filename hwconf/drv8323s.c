@@ -70,6 +70,8 @@ void drv8323s_init(void) {
 
 	chThdSleepMilliseconds(10);
 	
+	drv8323s_reset_faults();
+
 	drv8323s_init_regs();
 
 

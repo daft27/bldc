@@ -71,6 +71,10 @@ void drv8323s_init(void) {
 	// Set unidirectional div ref
 	drv8323s_write_reg(6, 0x0283); // 
 
+	// Reduce mosfet drive current.
+	drv8323s_write_reg(3, 0x0388);
+	drv8323s_write_reg(4, 0x0788);
+ 
 	terminal_register_command_callback(
 		"drv8323s_read_reg",
 		"Read a register from the DRV8323S and print it.",

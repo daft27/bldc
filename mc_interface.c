@@ -1759,6 +1759,16 @@ static THD_FUNCTION(timer_thread, arg) {
 			m_ignore_iterations--;
 		} else {
 			if (!IS_DRV_FAULT()) {
+				if (m_fault_now == FAULT_CODE_DRV) {
+#if defined(HW_HAS_DRV8323S)
+					drv8323s_init_regs();
+					drv8323s_set_oc_mode(m_conf.m_drv8301_oc_mode);
+					drv8323s_set_oc_adj(m_conf.m_drv8301_oc_adj);
+					drv8323s_dccal_on();
+					drv8323s_dccal_off();
+#endif
+
+				}
 				m_fault_now = FAULT_CODE_NONE;
 			}
 		}

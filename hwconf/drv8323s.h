@@ -22,6 +22,7 @@
 
 // Functions
 void drv8323s_init(void);
+void drv8323s_init_regs(void);
 void drv8323s_set_oc_adj(int val);
 void drv8323s_set_oc_mode(drv8301_oc_mode mode);
 void drv8323s_set_current_amp_gain(int gain);

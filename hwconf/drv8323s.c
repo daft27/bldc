@@ -45,25 +45,9 @@ static void terminal_reset_faults(int argc, const char **argv);
 // Private variables
 static char m_fault_print_buffer[120];
 
-void drv8323s_init(void) {
-	// DRV8323S SPI
-	palSetPadMode(DRV8323S_MISO_GPIO, DRV8323S_MISO_PIN, PAL_MODE_INPUT_PULLUP);
-	palSetPadMode(DRV8323S_SCK_GPIO, DRV8323S_SCK_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-	palSetPadMode(DRV8323S_CS_GPIO, DRV8323S_CS_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-	palSetPadMode(DRV8323S_MOSI_GPIO, DRV8323S_MOSI_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-	palSetPad(DRV8323S_MOSI_GPIO, DRV8323S_MOSI_PIN);
-
-	chThdSleepMilliseconds(100);
-	
+void drv8323s_init_regs(void) {
 	// Disable OC
 	drv8323s_write_reg(5, 0x04C0);
-
-	// Calibrate CSA
-//	drv8323s_write_reg(6, 0x283 | 0x001c); // 
-//	chThdSleepMilliseconds(100);
-
-        // Set bidirectional
-//        drv8323s_write_reg(6, 0x283);
 
 	// Set shunt amp gain
 	drv8323s_set_current_amp_gain(CURRENT_AMP_GAIN);
@@ -74,6 +58,28 @@ void drv8323s_init(void) {
 	// Reduce mosfet drive current.
 	drv8323s_write_reg(3, 0x0388);
 	drv8323s_write_reg(4, 0x0788);
+}
+
+void drv8323s_init(void) {
+	// DRV8323S SPI
+	palSetPadMode(DRV8323S_MISO_GPIO, DRV8323S_MISO_PIN, PAL_MODE_INPUT_PULLUP);
+	palSetPadMode(DRV8323S_SCK_GPIO, DRV8323S_SCK_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+	palSetPadMode(DRV8323S_CS_GPIO, DRV8323S_CS_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+	palSetPadMode(DRV8323S_MOSI_GPIO, DRV8323S_MOSI_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+	palSetPad(DRV8323S_MOSI_GPIO, DRV8323S_MOSI_PIN);
+
+	chThdSleepMilliseconds(10);
+	
+	drv8323s_init_regs();
+
+
+	// Calibrate CSA
+//	drv8323s_write_reg(6, 0x283 | 0x001c); // 
+//	chThdSleepMilliseconds(100);
+
+        // Set bidirectional
+//        drv8323s_write_reg(6, 0x283);
+
  
 	terminal_register_command_callback(
 		"drv8323s_read_reg",
@@ -175,6 +181,8 @@ void drv8323s_set_current_amp_gain(int gain) {
 
 void drv8323s_dccal_on(void)
 {
+	drv8323s_init_regs();
+
 	int reg = drv8323s_read_reg(6);
 	reg |= (1 << 2);
 	reg |= (1 << 3);
@@ -350,6 +358,7 @@ void drv8323s_write_reg(int reg, int data) {
 	spi_begin();
 	spi_exchange(out);
 	spi_end();
+	chThdSleepMilliseconds(5);
 }
 
 // Software SPI
